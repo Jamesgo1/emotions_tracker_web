@@ -20,12 +20,19 @@
                     <a class="navbar-item">
                         About
                     </a>
+                    <a class="navbar-item" href="/submit">
+                        Log Emotions
+                    </a>
                     <div class="navbar-end">
                         <div class="navbar-item has-dropdown is-hoverable"><a class="navbar-link">Account</a>
                             <div class="navbar-dropdown"><a class="navbar-item">Dashboard</a><a
                                         class="navbar-item">Profile</a><a class="navbar-item">Settings</a>
                                 <hr class="navbar-divider"/>
-                                <div class="navbar-item">Logout</div>
+                                <% if (!loggedIn) {%>
+                                <a class="navbar-item" href="/login">Login</a>
+                                <%} else {%>
+                                <a class="navbar-item" href="/login">Logout</a>
+                                <%}%>
                             </div>
                         </div>
                     </div>
@@ -59,7 +66,7 @@
                     <% var emotion_css = emotion_color[1]; %>
                     <% var emotion_name = emotion_color[0]; %>
                     <% if(emotion_name == emotion_info["emotion_name"]){ %>
-                    <%emotion_css = emotion_css + " is-light"%>
+                    <% emotion_css = emotion_css + " is-light" %>
                     <% } %>
                     <div class="control">
                         <a href="/emotion/<%= emotion_name %>">
