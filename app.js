@@ -20,6 +20,10 @@ app.use(session({
 app.use("/", router);
 app.set("view engine", "ejs");
 
+app.get('*', (req, res) =>{
+    res.render("404")
+});
+
 app.listen(process.env.PORT, (err) => {
     if (err) return console.log(err);
     console.log(`Express listening on port ${process.env.PORT}!`)

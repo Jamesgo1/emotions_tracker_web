@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>bulma cards</title>
@@ -24,7 +24,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="password" placeholder="Password" name="userpass">
+                <input class="input" type="password" placeholder="Password" name="password">
                 <span class="icon is-small is-left">
       <i class="fas fa-lock"></i>
     </span>
@@ -42,6 +42,17 @@
                 </a>
         </div>
     </form>
+
+    <div>
+
+        <h1 class="is-size-5 has-text-weight-bold has-text-danger">
+            <% if(status_code === 429) {%>
+            Too many failed login attempts. Account suspended until tomorrow.
+            <% } else if(status_code === 401){%>
+            Invalid user details. Please check your username and password.
+            <%}%>
+        </h1>
+    </div>
 </section>
 <div class="columns is-mobile is-centered">
     <div class="column is-half is-narrow"></div>

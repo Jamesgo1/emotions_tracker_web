@@ -1,4 +1,5 @@
 const axios = require("axios");
+const bcrypt = require("bcrypt");
 
 var cached_emotions_colors_arrays;
 
@@ -30,18 +31,20 @@ async function get_emotions_colors_array() {
     return emotions_colors_arrays;
 }
 
-exports.getHome = async (req, res) => {
+async function getDefaultHeaderData(req) {
     const {isloggedin, userid} = req.session;
-    console.log(`Logged in: ${isloggedin}`)
-    cached_emotions_colors_arrays = await get_emotions_colors_array();
-
-    console.log(cached_emotions_colors_arrays);
     emotion_data = {emotion_name: ""};
-    res.render("index", {
+    cached_emotions_colors_arrays = await get_emotions_colors_array();
+    return {
         emotion_info: emotion_data,
         emotion_array: cached_emotions_colors_arrays,
         loggedIn: isloggedin
-    });
+    }
+}
+
+exports.getHome = async (req, res) => {
+    headerParams = await getDefaultHeaderData(req)
+    res.render("index", headerParams);
 };
 
 exports.getEmotionInfo = async (req, res) => {
@@ -60,14 +63,13 @@ exports.getEmotionInfo = async (req, res) => {
         .catch((error) => {
             console.log(`Error making API request: ${error}`)
         });
-    if (!cached_emotions_colors_arrays) {
-        cached_emotions_colors_arrays = await get_emotions_colors_array();
-    }
+
+    cached_emotions_colors_arrays = await get_emotions_colors_array();
     var emotion_color;
     console.log("__EMOTION___")
     console.log(emotion_data);
     cached_emotions_colors_arrays.forEach((emotion_color_array) => {
-        if (emotion_color_array[0] == emotion_data.emotion_name) {
+        if (emotion_color_array[0] === emotion_data.emotion_name) {
             emotion_color = emotion_color_array[1];
         }
     })
@@ -81,29 +83,26 @@ exports.getEmotionInfo = async (req, res) => {
 };
 
 exports.getSubmissionPage = async (req, res) => {
-    const {isloggedin, userid} = req.session;
-    cached_emotions_colors_arrays = await get_emotions_colors_array();
-    const emotion_score_options = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    emotion_data = {emotion_name: ""};
-    res.render("submit_emotions", {
-        emotion_info: emotion_data,
-        emotion_array: cached_emotions_colors_arrays,
-        emotion_score_opts: emotion_score_options,
-        loggedIn: isloggedin
-    });
-    console.log(req.body);
+    var defaultParams = await getDefaultHeaderData(req);
+    if (defaultParams.loggedIn) {
+        defaultParams["emotion_score_opts"] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        res.render("submit_emotions", defaultParams);
+        console.log(req.body);
+    } else {
+        res.redirect("/");
+    }
+
 };
 
 exports.getLogin = async (req, res) => {
-    const {isloggedin, userid} = req.session;
-    cached_emotions_colors_arrays = await get_emotions_colors_array();
-    console.log(cached_emotions_colors_arrays);
-    emotion_data = {emotion_name: ""};
-    res.render("login", {emotion_info: emotion_data, emotion_array: cached_emotions_colors_arrays, loggedIn: isloggedin})
+    var defaultParams = await getDefaultHeaderData(req)
+    defaultParams["status_code"] = 0;
+    res.render("login", defaultParams);
 };
 
 exports.postLogin = async (req, res) => {
-    const vals = {username, userpass} = req.body;
+    var dataParams;
+    const vals = {username, password} = req.body;
     console.log(vals);
     const endpoint = `http://localhost:3002/emotions/users`;
     await axios
@@ -112,40 +111,41 @@ exports.postLogin = async (req, res) => {
                 return status < 500
             }
         })
-        .then((response) => {
+        .then(async (response) => {
             const status = response.status;
+            // console.log(response);
+            console.log(status);
             if (status === 200) {
-                const data = response.data.result;
+                const data = response.data;
                 console.log(data);
 
                 const session = req.session;
                 session.isloggedin = true;
                 console.log(data);
-                session.userid = data[0].user_id;
+                session.userid = data.user_id;
                 console.log(session);
                 res.redirect('/');
+            } else if (status === 429) {
+                dataParams = await getDefaultHeaderData(req);
+                dataParams["status_code"] = status;
+                emotion_data = {emotion_name: ""};
+                res.render("login", dataParams);
+
             } else {
                 const data = response.data;
-                console.log(data);
-
-                res.redirect("/");
+                dataParams = await getDefaultHeaderData(req);
+                dataParams["status_code"] = status;
+                res.render("login", dataParams);
             }
         })
         .catch((error) => {
             console.log(`Error making API response: ${error}`);
         });
-    console.log("finally")
-    console.log(req.session);
 };
 
 exports.getEmotionsSubmitted = async (req, res) => {
-    cached_emotions_colors_arrays = await get_emotions_colors_array();
-    emotion_data = {emotion_name: ""};
-    // console.log("Req:");
-    // const vals = {heres_a_name} = req.body;
-    // console.log(req.body);
-    // console.log(req.body);
-    res.render("submitted", {emotion_info: emotion_data, emotion_array: cached_emotions_colors_arrays});
+    var dataParmas = await getDefaultHeaderData(req);
+    res.render("submitted", dataParmas);
 }
 
 exports.postNewEmotionScore = async (req, res) => {
@@ -169,10 +169,90 @@ exports.postNewEmotionScore = async (req, res) => {
 
 
     console.log(submission_date);
-
-
 };
 
-exports.getInsight = (res, req) => {
-    res.render("insight");
+exports.getLogout = async (req, res) => {
+    var dataParams = await getDefaultHeaderData(req);
+    res.render("logout", dataParams);
 }
+
+exports.postLogout = (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+};
+
+async function checkRegCredentialsAvailable(usernameCheck, emailCheck) {
+    reqVals = {
+        username: usernameCheck,
+        email: emailCheck
+    }
+    var result;
+    console.log(reqVals);
+    const endpoint = `http://localhost:3002/emotions/users/reg-check`;
+    await axios
+        .post(endpoint, reqVals, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            result = response;
+            return result;
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return result;
+}
+
+exports.getRegister = async (req, res) => {
+    var dataParams = await getDefaultHeaderData(req);
+    dataParams["status_code"] = 0;
+    res.render("register", dataParams);
+};
+
+exports.postRegister = async (req, res) => {
+    const allRegisterVals = {username, password, password2, first_name, last_name, postcode, country, email} = req.body;
+    const valsToRegister = {username, password, first_name, last_name, postcode, country, email}
+
+    credAvailableResult = await checkRegCredentialsAvailable(username, email);
+    var dataParams;
+
+    if (credAvailableResult.status === 200) {
+        const endpoint = `http://localhost:3002/emotions/users/add-user-details`;
+        await axios
+            .post(endpoint, valsToRegister)
+            .then(async (response) => {
+                if (response.status === 200) {
+
+                    const session = req.session;
+                    session.isloggedin = true;
+                    session.userid = response.data.user_id;
+                    res.redirect('/');
+                } else {
+                    dataParams = await getDefaultHeaderData(req);
+                    dataParams["status_code"] = response.status;
+                    res.render("register", dataParams);
+                }
+
+            })
+            .catch((error) => {
+                console.log(`Error making API request: ${error}`)
+            });
+
+    } else {
+        dataParams = await getDefaultHeaderData(req);
+        dataParams["status_code"] = credAvailableResult.status;
+        res.render("register", dataParams);
+    }
+};
+
+exports.getAbout = async (req, res) => {
+    const dataParams = await getDefaultHeaderData(req);
+    res.render("about", dataParams);
+}
+exports.getInsight = (req, res) => {
+    res.render("insight");
+};

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bulma cards</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+<section class="container">
+    <form method="post" action="/register">
+        <div class="field">
+            <p class="control has-icons-left has-icons-right">
+                <input class="input" type="text" placeholder="Username" name="username">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-user"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="password" placeholder="Password" name="password">
+                <span class="icon is-small is-left">
+      <i class="fas fa-lock"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="password" placeholder="Confirm Password" name="password2">
+                <span class="icon is-small is-left">
+      <i class="fas fa-lock"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="text" placeholder="First Name" name="first_name">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-user"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="text" placeholder="Last Name" name="last_name">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-user"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="text" placeholder="Postcode (optional)" name="postcode">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-address-book"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="text" placeholder="Country (optional)" name="country">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-address-book"></i>
+    </span>
+            </p>
+        </div>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="email" placeholder="Email" name="email">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-envelope"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field is-grouped is-grouped">
+            <p class="control">
+                <button class="button is-success">
+                    Register
+                </button>
+            </p>
+            <p class="control">
+                <a class="button is-light" href="/">
+                    Cancel
+                </a>
+        </div>
+    </form>
+    <div>
+
+        <h1 class="is-size-5 has-text-weight-bold has-text-danger">
+            <% if(status_code === 403) { %>
+                Username or email already in use. Please use different credentials.
+            <% } else if(status_code === 401){ %>
+                Username and email address are unique but there is an issue with the fields submitted. Please check
+                    and try again.
+            <% } %>
+        </h1>
+    </div>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

@@ -17,22 +17,25 @@
                     <a class="navbar-item is-active" href="/">
                         Home
                     </a>
-                    <a class="navbar-item">
+                    <a class="navbar-item" href="/about">
                         About
                     </a>
-                    <a class="navbar-item" href="/submit">
-                        Log Emotions
-                    </a>
+                    <% if(loggedIn){ %>
+                        <a class="navbar-item" href="/submit">
+                            Log Emotions
+                        </a>
+                    <% } %>
                     <div class="navbar-end">
                         <div class="navbar-item has-dropdown is-hoverable"><a class="navbar-link">Account</a>
                             <div class="navbar-dropdown"><a class="navbar-item">Dashboard</a><a
                                         class="navbar-item">Profile</a><a class="navbar-item">Settings</a>
                                 <hr class="navbar-divider"/>
-                                <% if (!loggedIn) {%>
-                                <a class="navbar-item" href="/login">Login</a>
-                                <%} else {%>
-                                <a class="navbar-item" href="/login">Logout</a>
-                                <%}%>
+                                <% if (!loggedIn) { %>
+                                    <a class="navbar-item" href="/login">Login</a>
+                                    <a class="navbar-item" href="/register">Register</a>
+                                <% } else { %>
+                                    <a class="navbar-item" href="/logout">Logout</a>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -48,7 +51,7 @@
                     Daily Emotion Tracker
                 </h1>
                 <p class="subtitle">
-                    Track your seven universal emotions. Discover what makes you happy
+                    Track your seven universal emotions. Discover what makes you happy.
                 </p>
             </div>
 
@@ -66,7 +69,7 @@
                     <% var emotion_css = emotion_color[1]; %>
                     <% var emotion_name = emotion_color[0]; %>
                     <% if(emotion_name == emotion_info["emotion_name"]){ %>
-                    <% emotion_css = emotion_css + " is-light" %>
+                        <% emotion_css = emotion_css + " is-light" %>
                     <% } %>
                     <div class="control">
                         <a href="/emotion/<%= emotion_name %>">
