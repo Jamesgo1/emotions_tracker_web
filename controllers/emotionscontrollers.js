@@ -224,9 +224,54 @@ exports.postLogin = async (req, res) => {
         })
 };
 
-exports.getEmotionsSubmitted = async (req, res) => {
-    var dataParmas = await getDefaultHeaderData(req);
-    res.render("submitted", dataParmas);
+async function getCatPic() {
+    const catEndpoint = process.env.CAT_API
+    var catPicURL = "";
+    await axios
+        .get(catEndpoint, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            if(response.status === 200){
+                catPicURL = response.data.at(0).url;
+            }
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return catPicURL;
+}
+
+async function getSubmittedData(userID) {
+    console.log("My user_id")
+    console.log(userID);
+
+    var totalSubmissions = [];
+    const submissionCountEndpoint = `http://localhost:3002/emotions/sub-count/${userID}`
+    await axios
+        .get(submissionCountEndpoint, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            console.log(response.data);
+            if (response.status === 200) {
+                totalSubmissions = response.data.result;
+                console.log(totalSubmissions)
+            }
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return totalSubmissions;
+
 }
 
 exports.postNewEmotionScore = async (req, res) => {
@@ -236,6 +281,10 @@ exports.postNewEmotionScore = async (req, res) => {
 
     var triggers_array = triggers.split(/[\r\n]+/gm)
 
+    // Adding user_id for session
+    const {userid} = req.session;
+    valsToPost["user_id"] = userid;
+
     // Converting to integers
     Object.keys(valsToPost).forEach(key => {
         valsToPost[key] = parseInt(valsToPost[key]);
@@ -243,13 +292,34 @@ exports.postNewEmotionScore = async (req, res) => {
 
     delete valsToPost.triggers;
     valsToPost["triggers_array"] = triggers_array;
-    submission_date = new Date().toLocaleString();
-    valsToPost["sub_date_time"] = submission_date;
+
     // console.log(trigger_array);
     console.log(valsToPost);
 
+    const submissionEndpoint = "http://localhost:3002/emotions/submit";
+    await axios
+        .post(submissionEndpoint, valsToPost, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then(async (response) => {
+            console.log(response.data);
+            var submissionCount = await getSubmittedData(userid);
+            if(submissionCount.length > 0){
+                submissionCount = submissionCount.at(0).total;
+            }
+            const dataParams = await getDefaultHeaderData(req);
+            dataParams["sub_count"] = submissionCount;
+            console.log(dataParams);
+            dataParams["cat_url"] = await getCatPic();
+            res.render("submitted", dataParams);
 
-    console.log(submission_date);
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
 };
 
 exports.getLogout = async (req, res) => {
@@ -294,16 +364,6 @@ exports.getRegister = async (req, res) => {
     dataParams["validation_issues"] = [];
     res.render("register", dataParams);
 };
-
-async function permanentHashData(fieldToHash) {
-    const saltRounds = 8;
-    bcrypt
-        .hash(fieldToHash, saltRounds)
-        .catch((err) => {
-            console.log(`Hasing error: ${err}`);
-        })
-    return hash;
-}
 
 
 async function validatePassword(pw1, pw2) {

@@ -5,7 +5,7 @@ const controller = require("./../controllers/emotionscontrollers")
 myrouter.get("/", controller.getHome);
 myrouter.get("/emotion/:emotion", controller.getEmotionInfo);
 myrouter.get("/submit", controller.getSubmissionPage);
-myrouter.get("/submitted", controller.getEmotionsSubmitted);
+// myrouter.get("/submitted", controller.getEmotionsSubmitted);
 myrouter.get("/login", controller.getLogin);
 myrouter.get("/logout", controller.getLogout);
 myrouter.get("/register", controller.getRegister);
