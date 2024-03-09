@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <title>bulma cards</title>
+    <title>Emotions Tracker</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
     <!-- Bulma Version 0.9.4-->
     <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
@@ -48,8 +48,10 @@
         <h1 class="is-size-5 has-text-weight-bold has-text-danger">
             <% if(status_code === 429) {%>
             Too many failed login attempts. Account suspended until tomorrow.
-            <% } else if(status_code === 401){%>
-            Invalid user details. Please check your username and password.
+            <% } else if(status_code === 404){%>
+            Username not found.
+            <%} else if(status_code === 401){%>
+            Incorrect password entered.
             <%}%>
         </h1>
     </div>

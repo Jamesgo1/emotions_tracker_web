@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>bulma cards</title>
+    <title>Emotions Tracker</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
     <!-- Bulma Version 0.9.4-->
     <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
@@ -14,7 +14,7 @@
     <form method="post" action="/register">
         <div class="field">
             <p class="control has-icons-left has-icons-right">
-                <input class="input" type="text" placeholder="Username" name="username">
+                <input class="input" type="text" placeholder="Username" name="username" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-solid fa-user"></i>
     </span>
@@ -22,7 +22,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="password" placeholder="Password" name="password">
+                <input class="input" type="password" placeholder="Password" name="password" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-lock"></i>
     </span>
@@ -30,7 +30,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="password" placeholder="Confirm Password" name="password2">
+                <input class="input" type="password" placeholder="Confirm Password" name="password2" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-lock"></i>
     </span>
@@ -38,7 +38,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="text" placeholder="First Name" name="first_name">
+                <input class="input" type="text" placeholder="First Name" name="first_name" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-solid fa-user"></i>
     </span>
@@ -46,7 +46,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="text" placeholder="Last Name" name="last_name">
+                <input class="input" type="text" placeholder="Last Name" name="last_name" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-solid fa-user"></i>
     </span>
@@ -71,7 +71,7 @@
         </div>
         <div class="field">
             <p class="control has-icons-left">
-                <input class="input" type="email" placeholder="Email" name="email">
+                <input class="input" type="email" placeholder="Email" name="email" required>
                 <span class="icon is-small is-left">
       <i class="fas fa-solid fa-envelope"></i>
     </span>
@@ -89,17 +89,21 @@
                 </a>
         </div>
     </form>
-    <div>
+    <% if(validation_issues.length > 0){ %>
+        <div>
+            <h1 class="is-size-5 has-text-weight-bold has-text-danger is-underlined py-4">
+                Error. The following issues were found with your submission:
+            </h1>
+            <ul>
+                <% validation_issues.forEach((issue) => { %>
 
-        <h1 class="is-size-5 has-text-weight-bold has-text-danger">
-            <% if(status_code === 403) { %>
-                Username or email already in use. Please use different credentials.
-            <% } else if(status_code === 401){ %>
-                Username and email address are unique but there is an issue with the fields submitted. Please check
-                    and try again.
-            <% } %>
-        </h1>
-    </div>
+                    <li class="is-size-5 has-text-weight-bold has-text-danger">
+                        <%= issue %>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
 </section>
 <div class="columns is-mobile is-centered">
     <div class="column is-half is-narrow"></div>
