@@ -34,7 +34,7 @@ async function get_emotions_colors_array() {
 }
 
 async function getDefaultHeaderData(req) {
-    const {isloggedin, userid} = req.session;
+    const {isloggedin} = req.session;
     emotion_data = {emotion_name: ""};
     cached_emotions_colors_arrays = await get_emotions_colors_array();
     return {
@@ -106,8 +106,144 @@ async function getLoginAttempts(userID) {
     return outputResponse;
 }
 
+async function checkIfAlreadySubmitted(userID) {
+    const loginAttemptsEndpoint = `http://localhost:3002/emotions/sub-today/${userID}`
+    var submittedTodayCount;
+    await axios
+        .get(loginAttemptsEndpoint, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            submittedTodayCount = response.data.result;
+        })
+        .catch((error) => {
+            console.log(`Error making API response: ${error}`);
+        });
+    return submittedTodayCount;
+}
+
+async function getCatPic() {
+    const catEndpoint = process.env.CAT_API
+    var catPicURL = "";
+    await axios
+        .get(catEndpoint, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            if (response.status === 200) {
+                catPicURL = response.data.at(0).url;
+            }
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return catPicURL;
+}
+
+async function getSubmittedData(userID) {
+    console.log("My user_id")
+    console.log(userID);
+
+    var totalSubmissions = [];
+    const submissionCountEndpoint = `http://localhost:3002/emotions/sub-count/${userID}`
+    await axios
+        .get(submissionCountEndpoint, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            console.log(response.data);
+            if (response.status === 200) {
+                totalSubmissions = response.data.result;
+                console.log(totalSubmissions)
+            }
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return totalSubmissions;
+
+}
+
+async function checkRegCredentialsAvailable(usernameCheck) {
+    reqVals = {
+        username: usernameCheck,
+    }
+    var result;
+    console.log(reqVals);
+    const endpoint = `http://localhost:3002/emotions/users/reg-check`;
+    await axios
+        .post(endpoint, reqVals, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then((response) => {
+            result = response;
+            return result;
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return result;
+}
+
+async function getUserDetails(userID) {
+    const endpoint = `http://localhost:3002/emotions/users/user-details/${userID}`;
+    var decryptedDetails;
+
+    await axios
+        .get(endpoint)
+        .then(async (response) => {
+            const userDetailsRow = response.data.details.at(0);
+            console.log(userDetailsRow);
+            const userDetails = {username, password, first_name, last_name, postcode, country, email} = userDetailsRow;
+            const decryptedFirstName = await decryptPII(first_name);
+            const decryptedLastName = await decryptPII(last_name);
+            const decryptedEmail = await decryptPII(email);
+            const decryptedPassword = await decryptPII(password);
+            const passwordOutput = new Array(decryptedPassword.length + 1).join("*");
+            decryptedDetails = {
+                "username": username,
+                "password": passwordOutput,
+                "first_name": decryptedFirstName,
+                "last_name": decryptedLastName,
+                "postcode": postcode,
+                "country": country,
+                "email": decryptedEmail
+            }
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+    return decryptedDetails;
+}
+
 exports.getHome = async (req, res) => {
-    headerParams = await getDefaultHeaderData(req)
+    const headerParams = await getDefaultHeaderData(req);
+    var submissionCount = 0;
+    isLoggedIn = headerParams.loggedIn;
+    if (isLoggedIn) {
+        const {userid} = req.session;
+        submissionCount = await getSubmittedData(userid);
+        if (submissionCount.length > 0) {
+            submissionCount = submissionCount.at(0).total;
+        }
+    }
+    console.log(submissionCount);
+    headerParams["sub_count"] = submissionCount;
     res.render("index", headerParams);
 };
 
@@ -131,7 +267,7 @@ exports.getEmotionInfo = async (req, res) => {
 
     cached_emotions_colors_arrays = await get_emotions_colors_array();
     var emotion_color;
-    console.log("__EMOTION___")
+    console.log("Emotion selected:")
     console.log(emotion_data);
     cached_emotions_colors_arrays.forEach((emotion_color_array) => {
         if (emotion_color_array[0] === emotion_data.emotion_name) {
@@ -149,10 +285,18 @@ exports.getEmotionInfo = async (req, res) => {
 
 exports.getSubmissionPage = async (req, res) => {
     var defaultParams = await getDefaultHeaderData(req);
+
     if (defaultParams.loggedIn) {
-        defaultParams["emotion_score_opts"] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        res.render("submit_emotions", defaultParams);
-        console.log(req.body);
+        const {userid} = req.session;
+        const submittedTodayCount = await checkIfAlreadySubmitted(userid);
+        console.log("Submissions today count:")
+        console.log(submittedTodayCount);
+        if (submittedTodayCount > 0) {
+            res.render("already_submitted", defaultParams);
+        } else {
+            defaultParams["emotion_score_opts"] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            res.render("submit_emotions", defaultParams);
+        }
     } else {
         res.redirect("/");
     }
@@ -224,55 +368,6 @@ exports.postLogin = async (req, res) => {
         })
 };
 
-async function getCatPic() {
-    const catEndpoint = process.env.CAT_API
-    var catPicURL = "";
-    await axios
-        .get(catEndpoint, {
-            validateStatus: (status) => {
-                return status < 500
-            }
-        })
-        .then((response) => {
-            if(response.status === 200){
-                catPicURL = response.data.at(0).url;
-            }
-
-        })
-        .catch((error) => {
-            console.log(`Error making API request: ${error}`)
-            result = {"status": 500, "message": `Error making API request: ${error}`}
-        });
-    return catPicURL;
-}
-
-async function getSubmittedData(userID) {
-    console.log("My user_id")
-    console.log(userID);
-
-    var totalSubmissions = [];
-    const submissionCountEndpoint = `http://localhost:3002/emotions/sub-count/${userID}`
-    await axios
-        .get(submissionCountEndpoint, {
-            validateStatus: (status) => {
-                return status < 500
-            }
-        })
-        .then((response) => {
-            console.log(response.data);
-            if (response.status === 200) {
-                totalSubmissions = response.data.result;
-                console.log(totalSubmissions)
-            }
-
-        })
-        .catch((error) => {
-            console.log(`Error making API request: ${error}`)
-            result = {"status": 500, "message": `Error making API request: ${error}`}
-        });
-    return totalSubmissions;
-
-}
 
 exports.postNewEmotionScore = async (req, res) => {
     var valsToPost = {
@@ -306,7 +401,7 @@ exports.postNewEmotionScore = async (req, res) => {
         .then(async (response) => {
             console.log(response.data);
             var submissionCount = await getSubmittedData(userid);
-            if(submissionCount.length > 0){
+            if (submissionCount.length > 0) {
                 submissionCount = submissionCount.at(0).total;
             }
             const dataParams = await getDefaultHeaderData(req);
@@ -333,30 +428,6 @@ exports.postLogout = (req, res) => {
     });
 };
 
-async function checkRegCredentialsAvailable(usernameCheck, emailCheck) {
-    reqVals = {
-        username: usernameCheck,
-        email: emailCheck
-    }
-    var result;
-    console.log(reqVals);
-    const endpoint = `http://localhost:3002/emotions/users/reg-check`;
-    await axios
-        .post(endpoint, reqVals, {
-            validateStatus: (status) => {
-                return status < 500
-            }
-        })
-        .then((response) => {
-            result = response;
-            return result;
-        })
-        .catch((error) => {
-            console.log(`Error making API request: ${error}`)
-            result = {"status": 500, "message": `Error making API request: ${error}`}
-        });
-    return result;
-}
 
 exports.getRegister = async (req, res) => {
     var dataParams = await getDefaultHeaderData(req);
@@ -365,6 +436,130 @@ exports.getRegister = async (req, res) => {
     res.render("register", dataParams);
 };
 
+
+exports.getProfile = async (req, res) => {
+    // A place for the user to view, edit and delete their information
+    const {userid, isloggedin} = req.session;
+    if (isloggedin) {
+        const decryptedDetails = await getUserDetails(userid);
+        const dataParams = await getDefaultHeaderData(req);
+        dataParams["user_details"] = decryptedDetails;
+        res.render("profile", dataParams);
+    } else {
+        res.redirect("/");
+    }
+
+}
+
+exports.getEditDetails = async (req, res) => {
+    // The page where user can edit their details
+    const {isloggedin, userid} = req.session;
+    if (isloggedin) {
+        const edit_field = req.params.editfield;
+        console.log("Edit details:")
+        console.log(req.params);
+        const userDetails = await getUserDetails(userid);
+        const dataParams = await getDefaultHeaderData(req);
+        dataParams["field_label"] = edit_field;
+        dataParams["field_value"] = userDetails[edit_field];
+        dataParams["validation_issues"] = [];
+
+        res.render("user_edit", dataParams);
+    } else {
+        res.redirect("/");
+    }
+
+}
+
+exports.updateEditDetails = async (req, res) => {
+    // When user submits edited detail
+
+    var editedVal = req.body.edited_value;
+    const edit_field = req.params.editfield;
+
+    const invalidStatusArray = [];
+    const validationFields = ["username", "email"];
+    if (edit_field === "password") {
+        const secondPassword = req.body.edited_value2;
+        const invalidPasswordStatus = await validatePassword(editedVal, secondPassword);
+        invalidStatusArray.push(...invalidPasswordStatus);
+    } else if (edit_field === "username") {
+        const invalidUsernameStatus = await validateUsername(editedVal);
+        credAvailableResult = await checkRegCredentialsAvailable(editedVal);
+        if (credAvailableResult.status !== 200) {
+            invalidUsernameStatus.push("Username already in use. Please enter a different value.")
+        }
+        invalidStatusArray.push(...invalidUsernameStatus);
+    }
+    if (invalidStatusArray.length > 0) {
+        const {userid} = req.session;
+        const userDetails = await getUserDetails(userid);
+        const dataParams = await getDefaultHeaderData(req);
+        dataParams["field_label"] = edit_field;
+        dataParams["field_value"] = userDetails[edit_field];
+        dataParams["validation_issues"] = invalidStatusArray;
+        res.render("user_edit", dataParams);
+    } else {
+        const encryptedFields = ["password", "first_name", "last_name", "email"];
+        if (encryptedFields.includes(edit_field)) {
+            editedVal = await encryptPII(editedVal);
+        }
+
+        // Adding user_id for session
+        const {userid} = req.session;
+        const valsToUpdate = {"new_val": editedVal, "field_to_update": edit_field, user_id: userid};
+
+        const submissionEndpoint = "http://localhost:3002/emotions/users/update-details";
+        await axios
+            .put(submissionEndpoint, valsToUpdate, {
+                validateStatus: (status) => {
+                    return status < 500
+                }
+            })
+            .then(async (response) => {
+                console.log(response.data);
+                res.redirect("/");
+
+            })
+            .catch((error) => {
+                console.log(`Error making API request: ${error}`)
+                result = {"status": 500, "message": `Error making API request: ${error}`}
+            });
+    }
+}
+
+exports.getDelete = async (req, res) => {
+    const {isloggedin} = req.session;
+    if (isloggedin) {
+        var dataParams = await getDefaultHeaderData(req);
+        res.render("delete", dataParams);
+    } else {
+        res.redirect("/");
+    }
+
+}
+
+exports.postDelete = async (req, res) => {
+    const {userid} = req.session;
+
+    const submissionEndpoint = "http://localhost:3002/emotions/users/update-details";
+    await axios
+        .put(submissionEndpoint, valsToUpdate, {
+            validateStatus: (status) => {
+                return status < 500
+            }
+        })
+        .then(async (response) => {
+            console.log(response.data);
+            res.redirect("/");
+
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+
+}
 
 async function validatePassword(pw1, pw2) {
     const passwordStatusArray = [];
@@ -448,7 +643,7 @@ exports.postRegister = async (req, res) => {
         }
 
         dataParams = await getDefaultHeaderData(req);
-        credAvailableResult = await checkRegCredentialsAvailable(username, email);
+        credAvailableResult = await checkRegCredentialsAvailable(username);
 
         if (credAvailableResult.status === 200) {
             const endpoint = `http://localhost:3002/emotions/users/add-user-details`;
@@ -473,7 +668,7 @@ exports.postRegister = async (req, res) => {
                 });
 
         } else {
-            dataParams["validation_issues"] = ["Username and/or email already in use. Please use different" +
+            dataParams["validation_issues"] = ["Username already in use. Please use different" +
             " credentials."];
             res.render("register", dataParams);
         }

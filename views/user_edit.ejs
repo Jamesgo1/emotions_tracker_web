@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <form method="post" action="/edit/<%= field_label %>">
+        <p class="is-size-1 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-5">Enter your new details:</p>
+        <div class="columns is-vcentered">
+
+            <div class="column">
+                <div class="field mx-6 px-6 py-4">
+                    <% const formattedFieldLabel = field_label.replace("_", " ") %>
+                    <label class="label is-large is-capitalized"><%= formattedFieldLabel %></label>
+                </div>
+            </div>
+            <div class="column">
+                <div class="field mx-6 px-6 py-4">
+                    <label class="label is-large"><%= field_value %></label>
+                </div>
+            </div>
+
+            <% if(field_label === 'password'){ %>
+                <div class="column">
+                    <input class="input" type="password" placeholder="New <%= formattedFieldLabel %>"
+                           name="edited_value">
+                </div>
+                <div class="column">
+                    <input class="input" type="password" placeholder="Confirm <%= formattedFieldLabel %>"
+                           name="edited_value2">
+                </div>
+            <% } else if(field_label === "email"){ %>
+                <div class="column">
+                    <input class="input" type="email" placeholder="New <%= formattedFieldLabel %>" name="edited_value">
+                </div>
+            <% } else{ %>
+                <div class="column">
+                    <input class="input" type="text" placeholder="New <%= formattedFieldLabel %>" name="edited_value">
+                </div>
+            <% } %>
+        </div>
+        <div class="field is-grouped is-grouped  mx-5 mt-6 px-6 py-6">
+            <p class="control">
+                <button class="button is-primary is-medium">
+                    Submit
+                </button>
+            </p>
+            <p class="control">
+                <a class="button is-light is-medium" href="/">
+                    Cancel
+                </a>
+            </p>
+        </div>
+    </form>
+
+    <% if(validation_issues.length > 0){ %>
+        <div>
+            <h1 class="is-size-5 has-text-weight-bold has-text-danger is-underlined py-4">
+                Error. The following issues were found with your submission:
+            </h1>
+            <ul>
+                <% validation_issues.forEach((issue) => { %>
+
+                    <li class="is-size-5 has-text-weight-bold has-text-danger">
+                        <%= issue %>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

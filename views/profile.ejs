@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <p class="is-size-1 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Welcome to your profile</p>
+    <p class="is-size-4 has-text-left is-italic mx-5 px-6 py-6">This is where you can add, update, or delete
+        your details. You can edit the context behind your triggers, and delete a submission entirely; however,
+        the scores submitted for each emotion are not changeable as they are meant to reflect that point in time
+        .</p>
+    <% Object.entries(user_details).forEach(([field_label, field_value]) => { %>
+        <div class="columns is-vcentered">
+
+            <% var formattedFieldLabel = field_label.replace("_", " ") %>
+            <div class="column">
+                <div class="field mx-6 px-6 py-4">
+                    <label class="label is-large is-capitalized"><%= formattedFieldLabel %></label>
+                </div>
+            </div>
+            <div class="column">
+                <div class="field mx-6 px-6 py-4">
+                    <label class="label is-large"><%= field_value %></label>
+                </div>
+            </div>
+            <p class="control">
+                <button class="button is-light is-medium">
+                    <a href="/edit/<%= field_label %>">
+                        Edit
+                    </a>
+                </button>
+            </p>
+        </div>
+    <% }) %>
+
+    <p class="is-size-4 has-text-left has-text-weight-bold is-underlined is-danger mx-5 px-6 py-6 my-6">
+        Delete your account and all data associated with it.
+    </p>
+    <div class="columns is-vcentered">
+    <div class="column">
+        <div class="field mx-6 px-6">
+            <p class="control">
+                <a class="button is-danger is-medium" href="/delete">
+                    Delete Account
+                </a>
+            </p>
+        </div>
+    </div>
+    </div>
+
+
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

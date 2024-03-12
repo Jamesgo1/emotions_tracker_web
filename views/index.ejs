@@ -16,11 +16,15 @@
 
 
         <div class="box has-background-link-light  has-text-dark has-text-weight-medium">
-            <h1 class="title is-1">Welcome to the Daily Emotion Tracker</h1>
+            <h1 class="title is-1">Welcome
+                <%if(loggedIn){%>
+                back
+                    <%}%>
+                to the Daily Emotion Tracker</h1>
             <p>
                 Our aim is to provide a simple but effective way for you to build up a picture of how your emotions
                 change day to day and the reasons for those changes.
-                </p>
+            </p>
             <p>Find out with your own data what makes you happy
                 or angry, how days of the week can change your emotions, or even the impact of the weather on your
                 emotions. By logging this data, you can improve your emotional awareness and there is <a
@@ -43,10 +47,15 @@
             </blockquote>
 
             <p>
-                <a href="/register">Sign up</a> for a totally free account in which you are always in control of your
-                own
-                data and
-                start logging your emotions today!
+                <% if(!loggedIn){ %>
+                    <a href="/register">Sign up</a> for a totally free account in which you are always in control of
+                    your
+                    own
+                    data and
+                    start logging your emotions today!</p>
+                <% } else if(sub_count > 0){ %>
+                    <p class="is-underlined">You've tracked your emotions for <%= sub_count %> days! Great job!</p>
+                <% } %>
             </p>
         </div>
     </div>
