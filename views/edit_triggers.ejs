@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <form method="post" action="/edit-context">
+        <p class="is-size-1 has-text-left has-text-weight-bold mx-5 mt-6 px-6 py-1">Edit Your Context</p>
+        <p class="is-size-4 has-text-left is-italic mx-5 px-6 py-6">Delete the current contexts to remove them, or
+            add a new value.</p>
+        <% triggers.forEach((triggerObj) => { %>
+
+            <div class="columns is-vcentered">
+
+                <div class="column">
+                    <div class="field mx-6 px-6 py-4">
+                        <label class="label is-large is-capitalized"><%= triggerObj.trigger_desc %></label>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <label class="checkbox">
+                        <input type="checkbox" name="<%=triggerObj.trigger_id%>">
+                        Delete
+                    </label>
+                </div>
+            </div>
+
+        <% }); %>
+        <p class="is-size-1 has-text-left has-text-weight-bold mx-5 mt-6 px-6 py-1">Additional context</p>
+        <p class="is-size-4 has-text-left is-italic mx-5 px-6 py-6">
+            Add any new context for this submission below:
+        </p>
+        <textarea class="textarea is-large mx-6 px-6" placeholder="Enter your daily context - one per line"
+                  rows="3" name="triggers"></textarea>
+        <div class="field is-grouped is-grouped  mx-5 mt-6 px-6 py-6">
+            <p class="control">
+                <button class="button is-primary is-medium">
+                    Submit
+                </button>
+            </p>
+            <p class="control">
+                <a class="button is-light is-medium" href="/">
+                    Cancel
+                </a>
+            </p>
+        </div>
+    </form>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

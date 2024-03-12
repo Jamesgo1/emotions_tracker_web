@@ -12,11 +12,11 @@
 <%- include("header"); %>
 
 <section class="container">
-    <div class="content is-large has-text-centered">
+    <div class="content has-text-centered">
 
 
         <div class="box has-background-link-light  has-text-dark has-text-weight-medium">
-            <h1 class="title is-1">Welcome
+            <h1 class="title is-2">Welcome
                 <%if(loggedIn){%>
                 back
                     <%}%>
@@ -53,10 +53,11 @@
                     own
                     data and
                     start logging your emotions today!</p>
-                <% } else if(sub_count > 0){ %>
-                    <p class="is-underlined">You've tracked your emotions for <%= sub_count %> days! Great job!</p>
-                <% } %>
-            </p>
+                <% } else if(sub_count === 1){ %>
+                    <p class="is-underlined">You've tracked your emotions for <%= sub_count %> day! Great job!</p>
+                <% } else if(sub_count > 1){%>
+                <p class="is-underlined">You've tracked your emotions for <%= sub_count %> days! Great job!</p>
+                <%}%>
         </div>
     </div>
 </section>

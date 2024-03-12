@@ -341,6 +341,7 @@ exports.postLogin = async (req, res) => {
                     dataParams["status_code"] = totalFailedLogins.status;
                     res.render("login", dataParams);
                 } else {
+                    //Success
                     if (password === decryptedPW) {
                         const session = req.session;
                         session.isloggedin = true;
@@ -373,6 +374,8 @@ exports.postNewEmotionScore = async (req, res) => {
     var valsToPost = {
         anger_score, contempt_score, disgust_score, enjoyment_score, fear_score, sadness_score, surprise_score, triggers
     } = req.body;
+
+    triggers = triggers.replace(",", " ");
 
     var triggers_array = triggers.split(/[\r\n]+/gm)
 
@@ -537,21 +540,80 @@ exports.getDelete = async (req, res) => {
         res.redirect("/");
     }
 
-}
+};
+
+
+exports.getEmotionInputs = async (req, res) => {
+    const {isloggedin, userid} = req.session;
+    console.log(`My user id:`)
+    console.log(userid);
+
+    const emotionScoresEndpoint = `http://localhost:3002/emotions/submissions/${userid}`;
+
+    await axios
+        .get(emotionScoresEndpoint)
+        .then(async (response) => {
+            var emotionScoresData = response.data.result;
+            console.log("Emotion scores:")
+            emotionScoresData = emotionScoresData.slice(2).at(0);
+            const dataParams = await getDefaultHeaderData(req);
+            dataParams["emotion_scores"] = emotionScoresData;
+            res.render("view_submissions", dataParams);
+            console.log(emotionScoresData)
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+
+
+};
+
+exports.getDeleteSubmission = async (req, res) => {
+    const {isloggedin} = req.session;
+    console.log(req.params);
+    if (isloggedin) {
+        var dataParams = await getDefaultHeaderData(req);
+        dataParams["sub_id"] = req.params.submissionid;
+        res.render("delete_submission", dataParams);
+    } else {
+        res.redirect("/");
+    }
+
+};
+
+exports.postDeleteSubmission = async (req, res) => {
+    console.log(req.body);
+    const {sub_id} = req.body
+    console.log("post sub_id")
+    console.log(sub_id);
+
+
+    const deletionEndpoint = `http://localhost:3002/emotions/del-submission/${sub_id}`;
+    await axios
+        .delete(deletionEndpoint)
+        .then((response) => {
+            console.log(response.data);
+            res.redirect("/");
+        })
+        .catch((error) => {
+            console.log(`Error making API request: ${error}`)
+            result = {"status": 500, "message": `Error making API request: ${error}`}
+        });
+
+};
 
 exports.postDelete = async (req, res) => {
     const {userid} = req.session;
 
-    const submissionEndpoint = "http://localhost:3002/emotions/users/update-details";
+    const submissionEndpoint = `http://localhost:3002/emotions/users/delete/${userid}`;
     await axios
-        .put(submissionEndpoint, valsToUpdate, {
-            validateStatus: (status) => {
-                return status < 500
-            }
-        })
+        .delete(submissionEndpoint)
         .then(async (response) => {
             console.log(response.data);
-            res.redirect("/");
+            req.session.destroy(() => {
+                res.redirect('/');
+            });
 
         })
         .catch((error) => {
@@ -559,7 +621,73 @@ exports.postDelete = async (req, res) => {
             result = {"status": 500, "message": `Error making API request: ${error}`}
         });
 
-}
+};
+
+exports.getEditTriggers = async (req, res) => {
+    const {isloggedin, userid} = req.session;
+    console.log(req.params);
+    if (isloggedin) {
+        const sub_id = req.params.submissionid
+        session.subid = sub_id;
+        const editTriggersEndpoint = `http://localhost:3002/emotions/triggers/${sub_id}`
+        await axios
+            .get(editTriggersEndpoint)
+            .then(async (response) => {
+                console.log(response.data);
+                const dataParams = await getDefaultHeaderData(req);
+                dataParams["triggers"] = response.data.result;
+                res.render("edit_triggers", dataParams);
+
+            })
+            .catch((error) => {
+                console.log(`Error making API request: ${error}`)
+                result = {"status": 500, "message": `Error making API request: ${error}`}
+            });
+    } else {
+        res.redirect("/");
+    }
+};
+
+exports.updateTriggers = async (req, res) => {
+    console.log(req.body);
+    const triggerOuptut = req.body;
+    const triggersToDelete = [];
+    Object.entries(triggerOuptut).forEach(([outputLabel, outputValue]) => {
+        if (outputLabel !== "triggers" && outputValue === "on") {
+            triggersToDelete.push(outputLabel);
+        }
+    });
+    if (triggersToDelete.length > 0) {
+        const triggerUpdateEndpoint = "http://localhost:3002/emotions/trigger-delete";
+        await axios
+            .post(triggerUpdateEndpoint, triggersToDelete)
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(`Error making API request: ${error}`)
+                result = {"status": 500, "message": `Error making API request: ${error}`}
+            });
+    }
+    if (triggerOuptut.triggers) {
+        triggers = triggers.replace(",", " ");
+        const triggers_array = triggers.split(/[\r\n]+/gm);
+        triggers_array.push(session.subid);
+        const triggerUpdateEndpoint = "http://localhost:3002/emotions/trigger-delete";
+        await axios
+            .post(triggerUpdateEndpoint, triggersToDelete)
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(`Error making API request: ${error}`)
+                result = {"status": 500, "message": `Error making API request: ${error}`}
+            });
+    }
+
+
+};
+
 
 async function validatePassword(pw1, pw2) {
     const passwordStatusArray = [];

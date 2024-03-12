@@ -33,7 +33,7 @@
                                     <a class="navbar-item" href="/login">Login</a>
                                     <a class="navbar-item" href="/register">Register</a>
                                 <% } else { %>
-                                    <a class="navbar-item">Dashboard</a
+                                    <a class="navbar-item" href="/submissions">Submissions</a
                                     ><a class="navbar-item" href="/profile">Profile</a>
                                     <a class="navbar-item">Settings</a>
                                     <hr class="navbar-divider"/>
@@ -66,7 +66,7 @@
 <div class="box cta">
     <div class="columns is-mobile is-centered">
 
-        <div class="tags are-large">
+        <div class="tags are-medium">
             <div class="field is-grouped is-grouped-multiline">
                 <% emotion_array.forEach((emotion_color) => { %>
                     <% var emotion_css = emotion_color[1]; %>
