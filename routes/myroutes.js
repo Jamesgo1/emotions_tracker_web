@@ -17,6 +17,7 @@ myrouter.get("/submissions", emotionsController.getEmotionInputs);
 myrouter.get("/delete-submission/:submissionid", emotionsController.getDeleteSubmission);
 myrouter.get("/edit-context/:submissionid", emotionsController.getEditTriggers);
 myrouter.get("/insight", emotionsController.getInsight);
+myrouter.get("/submitted", emotionsController.postNewEmotionScore);
 
 myrouter.post("/submit", emotionsController.postNewEmotionScore);
 myrouter.post("/login", userController.postLogin);
@@ -27,5 +28,6 @@ myrouter.post("/delete-submission", emotionsController.postDeleteSubmission);
 myrouter.post("/delete", userController.postDelete);
 myrouter.post("/edit-context", emotionsController.updateTriggers);
 myrouter.post("/insight", emotionsController.postInsightFilter);
+
 
 module.exports = myrouter;

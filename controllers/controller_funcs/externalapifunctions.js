@@ -12,6 +12,7 @@ async function getCatPic() {
         .then((response) => {
             if (response.status === 200) {
                 catPicURL = response.data.at(0).url;
+                console.log(catPicURL);
             }
 
         })

@@ -23,7 +23,8 @@ app.use(session({
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            "script-src": ["'self'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com", "'unsafe-inline'"]
+            "script-src": ["'self'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com", "'unsafe-inline'"],
+            "img-src": ["'self'", "cdn2.thecatapi.com"]
         }
     }
 }));
