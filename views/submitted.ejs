@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <div class="content is-large has-text-centered py-2">
+
+
+        <div class="box has-background-link-light  has-text-dark has-text-weight-medium">
+            <h1 class="title is-1">Great job! You've successfully submitted your emotions!!</h1>
+            <h1 class="title is-3">
+                <% if(sub_count === 1){ %>
+                    This is your first submission! Keep adding more data to get a better picture of your emotional
+                    trends!
+                <% } else if(sub_count > 1){ %>
+                    You've now tracked your emotions for <%= sub_count %> days!
+                <% } %>
+            </h1>
+        </div>
+    </div>
+    <div class="card-image has-text-centered py-3">
+        <figure class="image is-inline-block">
+            <img src="<%= cat_url %>" alt="catpic"/>
+        </figure>
+    </div>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

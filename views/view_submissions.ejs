@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <p class="is-size-2 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Your Submissions</p>
+    <p class="is-size-5 has-text-left is-italic mx-5 px-6 py-6">
+        View your previous submissions and update any context behind your scores. The scores themselves cannot be
+        changed due to scores being limited to the emotions felt at that time. However, you are free to delete any of
+        your submissions entirely.
+        .</p>
+    <% var submissionNumber = 0 %>
+    <% emotion_scores.forEach((score) =>{ %>
+        <% submissionNumber += 1; %>
+        <% var scoreObj = score.emotion_scores %>
+        <% var submissionDateTime = score.submission_datetime %>
+        <% submissionDateTime = new Date(submissionDateTime); %>
+        <% var triggersString = score.triggers %>
+        <% const dateformat = {
+            weekday: 'long', year: 'numeric', month: 'long',
+            day: 'numeric'
+        }; %>
+        <% submissionDateTime = new Intl.DateTimeFormat('en-GB', dateformat).format(submissionDateTime); %>
+        <div class="card has-background-success-light has-text-centered p-3">
+            <h1 class="title is-6 has-text-left pt-4 pb-2">#<%= submissionNumber %></h1>
+            <div class="columns">
+                <div class="column">
+                    <div class="field mx-3 px-6 py-2">
+                        <label class="label is-medium is-capitalized">Date Submitted: <%= submissionDateTime %></label>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="columns is-vcentered">
+                <div class="column">
+                    <div class="field mx-6 px-6 py-4">
+                        <label class="label is-medium is-capitalized">Context:</label>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <% if(triggersString){ %>
+                        <% const triggerArray = triggersString.split(",") %>
+                        <div class="field mx-6 px-6 py-4">
+                            <ul>
+                                <% triggerArray.forEach((trigger) => { %>
+                                    <li class="is-capitalized has-text-weight-bold"> <%= trigger %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <div class="field mx-6 px-6 py-4">
+                            <label class="label is-medium is-capitalized">No context given.</label>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="column">
+                    <p class="control">
+                        <button class="button is-danger-light is-medium">
+                            <a href="/edit-context/<%= score
+                                    .emotion_submission_id %>">
+                                Edit
+                            </a>
+                        </button>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column"></div>
+                <div class="column">
+                    <table class="table has-text-centered is-fullwidth is-bordered is-striped">
+                        <thead>
+                        <tr>
+                            <th class="has-text-centered has-text-weight-bold">Emotion</th>
+                            <th class="has-text-centered has-text-weight-bold">Score</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% Object.entries(scoreObj).forEach(([emotion_name, emotion_score]) => { %>
+                            <tr>
+                                <td class="is-capitalized has-text-weight-bold"><%= emotion_name %></td>
+                                <td class="has-text-weight-bold"><%= emotion_score %></td>
+
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column"></div>
+            </div>
+
+            <div class="columns is-vcentered">
+                <div class="column">
+                    <p class="is-size-5 has-text-left has-text-weight-bold is-underlined is-danger mx-5 px-6 py-6 my-6">
+                        Delete this submission score here:
+                    </p>
+                </div>
+
+                <div class="column">
+                    <div class="field mx-6 px-6">
+                        <p class="control">
+                            <a class="button is-danger" href="/delete-submission/<%= score
+                                    .emotion_submission_id %>">
+                                Delete Score
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

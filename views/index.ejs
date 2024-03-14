@@ -1,11 +1,70 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+<section class="container">
+    <div class="content has-text-centered">
+
+
+        <div class="box has-background-link-light  has-text-dark has-text-weight-medium">
+            <h1 class="title is-2">Welcome
+                <%if(loggedIn){%>
+                back
+                    <%}%>
+                to the Daily Emotion Tracker</h1>
+            <p>
+                Our aim is to provide a simple but effective way for you to build up a picture of how your emotions
+                change day to day and the reasons for those changes.
+            </p>
+            <p>Find out with your own data what makes you happy
+                or angry, how days of the week can change your emotions, or even the impact of the weather on your
+                emotions. By logging this data, you can improve your emotional awareness and there is <a
+                        href="https://www.urmc.rochester.edu/encyclopedia/content
+              .aspx?ContentID=4552&ContentTypeID=1">evidence</a> to suggest that keeping track of emotions can
+                improve emotional wellness.
+            </p>
+            <p>
+                Using Dr Paul Ekman's research on the <a href="https://www.paulekman.com/universal-emotions/">seven
+                    universal emotions </a> as a starting point, this website offers the opportunity to improve your
+                emotional awareness.
+
+                In the words of Dr Ekman himself:
+            </p>
+
+            <blockquote class="has-text-black has-background-info-light is-italic">
+                In order to have more choice about our emotional reactions, we must first build awareness of the
+                emotional behaviors, experiences and triggers that we, and others, face. This process allows us to find
+                insight in awareness to help shape our emotional reactions in more thoughtful and constructive ways.
+            </blockquote>
+
+            <p>
+                <% if(!loggedIn){ %>
+                    <a href="/register">Sign up</a> for a totally free account in which you are always in control of
+                    your
+                    own
+                    data and
+                    start logging your emotions today!</p>
+                <% } else if(sub_count === 1){ %>
+                    <p class="is-underlined">You've tracked your emotions for <%= sub_count %> day! Great job!</p>
+                <% } else if(sub_count > 1){%>
+                <p class="is-underlined">You've tracked your emotions for <%= sub_count %> days! Great job!</p>
+                <%}%>
+        </div>
+    </div>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
 </html>

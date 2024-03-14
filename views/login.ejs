@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+<section class="container">
+    <form method="post" action="/login">
+        <div class="field">
+            <p class="control has-icons-left has-icons-right">
+                <input class="input" type="text" placeholder="Username" name="username">
+                <span class="icon is-small is-left">
+      <i class="fas fa-solid fa-user"></i>
+    </span>
+                <span class="icon is-small is-right">
+    </span>
+            </p>
+        </div>
+        <div class="field">
+            <p class="control has-icons-left">
+                <input class="input" type="password" placeholder="Password" name="password">
+                <span class="icon is-small is-left">
+      <i class="fas fa-lock"></i>
+    </span>
+            </p>
+        </div>
+        <div class="field is-grouped is-grouped">
+            <p class="control">
+                <button class="button is-success">
+                    Login
+                </button>
+            </p>
+            <p class="control">
+                <a class="button is-light" href="/">
+                    Cancel
+                </a>
+        </div>
+    </form>
+
+    <div>
+
+        <h1 class="is-size-5 has-text-weight-bold has-text-danger">
+            <% if(status_code === 429) {%>
+            Too many failed login attempts. Account suspended until tomorrow.
+            <% } else if(status_code === 404){%>
+            Username not found.
+            <%} else if(status_code === 401){%>
+            Incorrect password entered.
+            <%}%>
+        </h1>
+    </div>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>

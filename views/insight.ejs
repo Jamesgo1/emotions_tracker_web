@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotions Tracker</title>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script>
+    <script src="https://unpkg.com/chartist-plugin-tooltips@0.0.17"></script>
+    <script src="https://unpkg.com/chartist-plugin-pointlabels@0.0.6"></script>
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+
+    <style>
+        .ct-series-a .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(348, 100%, 61%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-b .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(217, 71%, 53%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-c .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(141, 53%, 53%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-d .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(171, 100%, 41%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-e .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(48, 100%, 67%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-f .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(204, 86%, 53%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-g .ct-bar {
+            /* Colour of your bars */
+            stroke: hsl(0, 0%, 71%);
+            /* The width of your bars */
+            stroke-width: 50px;
+        }
+
+        .ct-series-a .ct-line, .ct-series-a .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(348, 100%, 61%);
+            /* The width of your bars */
+        }
+
+        .ct-series-b .ct-line, .ct-series-b .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(217, 71%, 53%);
+            /* The width of your bars */
+        }
+
+        .ct-series-c .ct-line, .ct-series-c .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(141, 53%, 53%);
+            /* The width of your bars */
+        }
+
+        .ct-series-d .ct-line, .ct-series-d .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(171, 100%, 41%);
+            /* The width of your bars */
+        }
+
+        .ct-series-e .ct-line, .ct-series-e .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(48, 100%, 67%);
+            /* The width of your bars */
+        }
+
+        .ct-series-f .ct-line, .ct-series-f .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(204, 86%, 53%);
+            /* The width of your bars */
+        }
+
+        .ct-series-g .ct-line, .ct-series-g .ct-point {
+            /* Colour of your bars */
+            stroke: hsl(0, 0%, 71%);
+            /* The width of your bars */
+        }
+    </style>
+</head>
+<body>
+<%- include("header"); %>
+<p class="is-size-2 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Insight</p>
+<p class="is-size-5 has-text-centered is-italic mx-5 px-6 py-6">
+    Examine the trends in your emotions and how they change over time.
+    .</p>
+<% if(date_labels.legngth === 0){ %>
+    <p class="is-size-5 has-text-centered is-italic mx-5 px-6 py-6">
+        You have not submitted any emotion scores yet! Submit your first score <a href="/submit">here</a>
+        .</p>
+<% } else if(date_labels.length === 1){ %>
+    <section class="section">
+        <h1 class="title"><%= date_labels.length %></h1>
+        <p class="is-size-5 has-text-centered is-underlined mx-5 px-6 py-1">
+            Your overall emotion scores</p>
+        <p class="is-size-5 has-text-centered is-italic mx-5 px-6 py-3">
+            This is the average of your emotion score for all submissions</p>
+
+        <div class="container py-3">
+            <div class="ct-chart ct-golden-section" id="average"></div>
+        </div>
+    </section>
+<% } else{ %>
+    <section class="section">
+        <p class="is-size-5 has-text-centered is-underlined mx-5 px-6 py-1">
+            Your overall emotion scores</p>
+        <p class="is-size-5 has-text-centered is-italic mx-5 px-6">
+            This is the average of your emotion score for all submissions</p>
+
+        <div class="container">
+            <div class="ct-chart ct-square" id="average"></div>
+        </div>
+        <div class="container pb-5 mb-6">
+            <% if(Object.keys(filtered_triggers).length > 0){ %>
+                <div class="columns">
+                    <div class="column"></div>
+                    <div class="column">
+                        <table class="table has-text-centered is-fullwidth is-bordered is-striped">
+                            <thead>
+                            <tr>
+                                <th class="has-text-centered has-text-weight-bold">Emotion</th>
+                                <th class="has-text-centered has-text-weight-bold">Total Average</th>
+                                <th class="has-text-centered has-text-weight-bold">Context Average</th>
+                                <th class="has-text-centered has-text-weight-bold">Diff %</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% const filteredScoresArray = filtered_triggers.scores_ave_array %>
+                            <% for (let i = 0; i < insight_emotions_array.length; i++) { %>
+                                <% var filteredAverage = filteredScoresArray.at(i).at(0); %>
+                                <% var totalAverage = scores_ave_array.at(i).at(0); %>
+                                <% var emotionName = insight_emotions_array.at(i); %>
+                                <% var aveDiff; %>
+                                <% if(totalAverage > filteredAverage){ %>
+                                    <% aveDiff = filteredAverage / totalAverage %>
+                                    <% aveDiff = 1 - aveDiff %>
+                                    <% aveDiff = "-" + (aveDiff * 100).toFixed(1).toString() + "%"; %>
+                                <% }else{ %>
+                                    <% aveDiff = totalAverage / filteredAverage %>
+                                    <% aveDiff = 1 - aveDiff %>
+                                    <% aveDiff = "+" + (aveDiff * 100).toFixed(1).toString() + "%"; %>
+                                <% } %>
+                                <% totalAverage = totalAverage.toFixed(1).toString(); %>
+                                <% filteredAverage = filteredAverage.toFixed(1).toString(); %>
+
+                                <tr>
+                                    <td class="is-capitalized has-text-weight-bold"><%= emotionName %></td>
+                                    <td class="has-text-weight-bold"><%= totalAverage %></td>
+                                    <td class="has-text-weight-bold"><%= filteredAverage %></td>
+                                    <td class="has-text-weight-bold"><%= aveDiff %></td>
+
+                                </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="column"></div>
+                </div>
+        </div>
+        <% } %>
+        <p class="is-size-5 has-text-centered is-underlined mx-5 px-6">
+            Your emotions over time
+        </p>
+        <p class="is-size-6 has-text-centered is-italic mx-5 px-6 py-5">
+            Colour code:
+        </p>
+        <div class="columns is-centered">
+            <div class="tags are-small">
+                <div class="field is-grouped is-grouped-multiline has-text-centered">
+                    <% emotion_array.forEach((emotion_color) => { %>
+                        <% var emotion_css = emotion_color[1]; %>
+                        <% var emotion_name = emotion_color[0]; %>
+                        <p></p>
+
+                        <div class="control">
+                            <a href="/emotion/<%= emotion_name %>">
+                        <span class="tag is-<%= emotion_css %> is-capitalized">
+                            <%= emotion_name %>
+                        </span>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="ct-chart ct-square" id="overall"></div>
+        </div>
+
+        <form method="post" action="/insight">
+            <p class="is-size-3 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Filter by Context</p>
+            <p class="is-size-5 has-text-centered is-italic mx-5 px-6 py-6">Filter by your most common contexts to
+                see how they affect your scores
+                .</p>
+            <% triggers_filter.forEach((triggerObj) => { %>
+
+                <div class="columns is-vcentered">
+
+                    <div class="column">
+                        <div class="field mx-6 px-6 py-4">
+                            <label class="label is-large is-capitalized"><%= triggerObj.trigger_desc %> (<%=
+                                    triggerObj.total %>)</label>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <label class="checkbox">
+                            <input type="checkbox" name="<%= triggerObj.trigger_desc %>">
+                            Add to filter
+                        </label>
+                    </div>
+                </div>
+
+            <% }); %>
+            <div class="columns is-centered">
+                <div class="column">
+                    <p class="control has-text-centered">
+                        <button class="button is-primary is-medium">
+                            Filter
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </section>
+<% } %>
+<script>
+    const dateLabels = JSON.parse(`<%- JSON.stringify(date_labels) %>`);
+    const emotionsArray = JSON.parse('<%- JSON.stringify(insight_emotions_array) %>')
+    const scoresAverageArray = JSON.parse('<%- JSON.stringify(scores_ave_array) %>')
+    const scoresArrays = JSON.parse('<%- JSON.stringify(scores_arrays) %>')
+
+    console.log(scoresAverageArray);
+    var barOptions = {
+        axisY: {
+            onlyInteger: true
+        },
+        axisX: {
+            offset: 10
+        },
+        chartPadding: {
+            top: 100,
+            right: 100,
+            bottom: 10,
+            left: 100
+        },
+        width: "80%",
+        height: "80%",
+        seriesBarDistance: 100,
+        low: 0,
+        high: 10,
+        plugins: []
+    };
+
+    new Chartist.Bar('#average',
+        {
+            labels: emotionsArray,
+            series: scoresAverageArray
+        },
+        barOptions
+    );
+
+    var lineOptions = {
+        axisY: {
+            onlyInteger: true
+        },
+        chartPadding: {
+            top: 0,
+            right: 100,
+            bottom: 0,
+            left: 100
+        },
+        width: "100%",
+        height: "70%",
+        seriesBarDistance: 100,
+        low: 0,
+        high: 10,
+        stretch: true,
+        plugins: []
+    };
+
+    new Chartist.Line('#overall',
+        {
+            labels: dateLabels,
+            series: scoresArrays
+        },
+        lineOptions);
+
+</script>
+<%- include("footer"); %>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<header class="header">
+    <nav class="navbar has-shadow">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <img src="../images/equb_logo.jpeg"
+                         alt="Emotion tracker logo"/>
+                </a>
+                <div class="navbar-burger burger" data-target="navMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div class="navbar-menu" id="navMenu">
+                <div class="navbar-end">
+                    <a class="navbar-item is-active" href="/">
+                        Home
+                    </a>
+                    <a class="navbar-item" href="/about">
+                        About
+                    </a>
+                    <% if(loggedIn){ %>
+                        <a class="navbar-item" href="/submit">
+                            Log Emotions
+                        </a>
+                        <a class="navbar-item" href="/submissions">Submissions</a>
+                        <a class="navbar-item" href="/insight">
+                            Insight
+                        </a>
+                    <% } %>
+                    <div class="navbar-end">
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Account</a>
+                            <div class="navbar-dropdown">
+                                <% if (!loggedIn) { %>
+                                    <a class="navbar-item" href="/login">Login</a>
+                                    <a class="navbar-item" href="/register">Register</a>
+                                <% } else { %>
+                                    <a class="navbar-item" href="/profile">Profile</a>
+                                    <a class="navbar-item">Settings</a>
+                                    <hr class="navbar-divider"/>
+                                    <a class="navbar-item" href="/logout">Logout</a>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="hero is-info">
+
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-1">
+                    Daily Emotion Tracker
+                </h1>
+                <p class="subtitle">
+                    Track your seven universal emotions. Discover what makes you happy.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+</header>
+
+<div class="box cta">
+    <div class="columns is-mobile is-centered">
+
+        <div class="tags are-medium">
+            <div class="field is-grouped is-grouped-multiline">
+                <% emotion_array.forEach((emotion_color) => { %>
+                    <% var emotion_css = emotion_color[1]; %>
+                    <% var emotion_name = emotion_color[0]; %>
+                    <% if(emotion_name == emotion_info["emotion_name"]){ %>
+                        <% emotion_css = emotion_css + " is-light" %>
+                    <% } %>
+                    <div class="control">
+                        <a href="/emotion/<%= emotion_name %>">
+                        <span class="tag is-<%= emotion_css %> is-capitalized">
+                            <%= emotion_name %>
+                        </span>
+                        </a>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</div>

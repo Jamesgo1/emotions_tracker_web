@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotions Tracker</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <!-- Bulma Version 0.9.4-->
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.4/css/bulma.min.css'>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<%- include("header"); %>
+
+
+<section class="container">
+    <div class="box">
+        <div class="box has-background-<%= current_emotion_color %>-light">
+            <h1 class="is-size-1 has-text-weight-bold is-capitalized has-text-centered">
+                <%= emotion_data.emotion_name %>
+            </h1>
+        </div>
+        <div class="box has-background-<%= current_emotion_color %>-light">
+            <h1 class="is-size-3 has-text-weight-medium has-text-centered">
+                <%= emotion_data.emotion_desc %>
+            </h1>
+
+        </div>
+        <div class="box has-background-<%= current_emotion_color %>-light">
+            <h1 class="is-size-3 has-text-weight-medium has-text-centered">
+                For more information, visit Paul Ekman's page <a href="<%= emotion_data.page_ref %>">here</a>
+            </h1>
+        </div>
+    </div>
+</section>
+<div class="columns is-mobile is-centered">
+    <div class="column is-half is-narrow"></div>
+</div>
+<%- include("footer"); %>
+<script src="../js/bulma.js"></script>
+</body>
+</html>
