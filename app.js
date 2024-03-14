@@ -1,15 +1,17 @@
 const express = require("express");
 const dotenv = require("dotenv").config({path: "./config.env"});
 const morgan = require("morgan");
-const session = require("express-session");
-const router = require("./routes/myroutes")
 const path = require("path");
+const session = require("express-session");
+const router = require("./routes/myroutes");
+const helmet = require("helmet");
+
 
 
 const app = express();
 
-app.use(morgan("tiny"));
 app.use(express.static(path.join(__dirname, "/public")));
+app.use(morgan("tiny"));
 app.use(express.urlencoded({extended: true}));
 
 app.use(session({
@@ -17,6 +19,15 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            "script-src": ["'self'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com", "'unsafe-inline'"]
+        }
+    }
+}));
+
 app.use("/", router);
 app.set("view engine", "ejs");
 

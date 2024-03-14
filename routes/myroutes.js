@@ -1,28 +1,31 @@
 const express = require("express");
 const myrouter = express.Router();
-const controller = require("./../controllers/emotionscontrollers")
-const {getEditDetails, getDelete, getEmotionInputs, getDeleteSubmission, getEditTriggers, updateTriggers} = require("../controllers/emotionscontrollers");
+const emotionsController = require("./../controllers/emotionscontroller")
+const userController = require("./../controllers/usercontroller")
 
-myrouter.get("/", controller.getHome);
-myrouter.get("/emotion/:emotion", controller.getEmotionInfo);
-myrouter.get("/submit", controller.getSubmissionPage);
-myrouter.get("/login", controller.getLogin);
-myrouter.get("/logout", controller.getLogout);
-myrouter.get("/register", controller.getRegister);
-myrouter.get("/about", controller.getAbout);
-myrouter.get("/profile", controller.getProfile);
-myrouter.get("/edit/:editfield", getEditDetails);
-myrouter.get("/delete", getDelete);
-myrouter.get("/submissions", getEmotionInputs);
-myrouter.get("/delete-submission/:submissionid", getDeleteSubmission);
-myrouter.get("/edit-context/:submissionid", getEditTriggers);
+myrouter.get("/", emotionsController.getHome);
+myrouter.get("/emotion/:emotion", emotionsController.getEmotionInfo);
+myrouter.get("/submit", emotionsController.getSubmissionPage);
+myrouter.get("/login", userController.getLogin);
+myrouter.get("/logout", userController.getLogout);
+myrouter.get("/register", userController.getRegister);
+myrouter.get("/about", emotionsController.getAbout);
+myrouter.get("/profile", userController.getProfile);
+myrouter.get("/edit/:editfield", userController.getEditDetails);
+myrouter.get("/delete", userController.getDelete);
+myrouter.get("/submissions", emotionsController.getEmotionInputs);
+myrouter.get("/delete-submission/:submissionid", emotionsController.getDeleteSubmission);
+myrouter.get("/edit-context/:submissionid", emotionsController.getEditTriggers);
+myrouter.get("/insight", emotionsController.getInsight);
 
-myrouter.post("/submit", controller.postNewEmotionScore);
-myrouter.post("/login", controller.postLogin);
-myrouter.post("/logout", controller.postLogout);
-myrouter.post("/register", controller.postRegister);
-myrouter.post("/edit/:editfield", controller.updateEditDetails);
-myrouter.post("/delete-submission", controller.postDeleteSubmission);
-myrouter.post("/delete", controller.postDelete);
-myrouter.post("/edit-context", updateTriggers);
+myrouter.post("/submit", emotionsController.postNewEmotionScore);
+myrouter.post("/login", userController.postLogin);
+myrouter.post("/logout", userController.postLogout);
+myrouter.post("/register", userController.postRegister);
+myrouter.post("/edit/:editfield", userController.updateEditDetails);
+myrouter.post("/delete-submission", emotionsController.postDeleteSubmission);
+myrouter.post("/delete", userController.postDelete);
+myrouter.post("/edit-context", emotionsController.updateTriggers);
+myrouter.post("/insight", emotionsController.postInsightFilter);
+
 module.exports = myrouter;

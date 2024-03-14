@@ -14,8 +14,8 @@
 <%- include("header"); %>
 
 <section class="container">
-    <p class="is-size-1 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Your Submissions</p>
-    <p class="is-size-4 has-text-left is-italic mx-5 px-6 py-6">
+    <p class="is-size-2 has-text-centered has-text-weight-bold mx-5 mt-6 px-6 py-1">Your Submissions</p>
+    <p class="is-size-5 has-text-left is-italic mx-5 px-6 py-6">
         View your previous submissions and update any context behind your scores. The scores themselves cannot be
         changed due to scores being limited to the emotions felt at that time. However, you are free to delete any of
         your submissions entirely.
@@ -33,11 +33,11 @@
         }; %>
         <% submissionDateTime = new Intl.DateTimeFormat('en-GB', dateformat).format(submissionDateTime); %>
         <div class="card has-background-success-light has-text-centered p-3">
-            <h1 class="title is-2 has-text-centered is-underlined pt-6 pb-3">Submission <%= submissionNumber %></h1>
+            <h1 class="title is-6 has-text-left pt-4 pb-2">#<%= submissionNumber %></h1>
             <div class="columns">
                 <div class="column">
-                    <div class="field mx-6 px-6 py-4">
-                        <label class="label is-large is-capitalized">Date Submitted: <%= submissionDateTime %></label>
+                    <div class="field mx-3 px-6 py-2">
+                        <label class="label is-medium is-capitalized">Date Submitted: <%= submissionDateTime %></label>
 
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             <div class="columns is-vcentered">
                 <div class="column">
                     <div class="field mx-6 px-6 py-4">
-                        <label class="label is-large is-capitalized">Context:</label>
+                        <label class="label is-medium is-capitalized">Context:</label>
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@
                         </div>
                     <% } else { %>
                         <div class="field mx-6 px-6 py-4">
-                            <label class="label is-large is-capitalized">No context given.</label>
+                            <label class="label is-medium is-capitalized">No context given.</label>
                         </div>
                     <% } %>
                 </div>
@@ -103,7 +103,7 @@
 
             <div class="columns is-vcentered">
                 <div class="column">
-                    <p class="is-size-4 has-text-left has-text-weight-bold is-underlined is-danger mx-5 px-6 py-6 my-6">
+                    <p class="is-size-5 has-text-left has-text-weight-bold is-underlined is-danger mx-5 px-6 py-6 my-6">
                         Delete this submission score here:
                     </p>
                 </div>
@@ -111,7 +111,7 @@
                 <div class="column">
                     <div class="field mx-6 px-6">
                         <p class="control">
-                            <a class="button is-danger is-medium" href="/delete-submission/<%= score
+                            <a class="button is-danger" href="/delete-submission/<%= score
                                     .emotion_submission_id %>">
                                 Delete Score
                             </a>
